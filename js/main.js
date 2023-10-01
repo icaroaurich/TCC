@@ -3,22 +3,16 @@ function handleCredentialResponse(response) {
 
   fullName.textContent = data.name
   picture.setAttribute("src", data.picture)
-  //sub.textContent = data.sub
-  //given_name.textContent = data.given_name
-  //family_name.textContent = data.family_name
-  //email.textContent = data.email
-  //verifiedEmail.textContent = data.email_verified
-  
-}
+  document.getElementById('idDoBotao').style.display = 'inline';}
 
 window.onload = function () {
-  //const clientID = window.prompt("Cole a sua Cliente ID", "")
   const clientID = "762869086197-csvsm277peta409i3nt1s6c2qon45ns9.apps.googleusercontent.com"
-
+  document.getElementById('idDoBotao').style.display = 'none';
 
   google.accounts.id.initialize({
     client_id: clientID,
     callback: handleCredentialResponse
+    
   });
 
   google.accounts.id.renderButton(
@@ -28,9 +22,9 @@ window.onload = function () {
     type: "standard",
     shape: "pill",
     locale: "pt-BR",
-    logo_alignment: "left",
-  } // customization attributes
-  );
+    });
 
-  google.accounts.id.prompt(); // also display the One Tap dialog
-}
+  google.accounts.id.prompt();}
+
+
+
