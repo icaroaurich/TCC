@@ -1,0 +1,33 @@
+html{ /* esse aqui muda a cor do fundo 005ba1 #567ab0 */
+    background-color: eaeaea;} /*estava 2a2a2e*/
+h1{
+    background-color: #005ba1;
+    font-size: 50px;
+    padding: 0px;
+    border: 1px solid black;
+    color: white;
+    text-align: center;}
+input{
+    background-color: #000;
+    padding: 1px;
+    border: 1px solid black;
+    font-size: 14px;}
+button{
+    padding: 0px;border: 0px #ff0;
+    background-color:#eaeaea;} 
+a{
+    padding: 2px;
+    color:#fff;
+    background-color: black;}
+li {
+    border:1px solid black;
+    color:#fff;
+    font-weight: bold;
+    font-size: 20px;}
+img{
+    background-color: yellow;
+    padding: 10px;
+    border: 8px solid black;}
+    
+.red{
+        color:red;}
