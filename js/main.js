@@ -3,11 +3,12 @@ function handleCredentialResponse(response) {
 
   fullName.textContent = data.name
   picture.setAttribute("src", data.picture)
-  document.getElementById('idDoBotao').style.display = 'inline';}
+  document.getElementById('botaoAvancar').style.display = 'inline';
+}
 
 window.onload = function () {
   const clientID = "762869086197-csvsm277peta409i3nt1s6c2qon45ns9.apps.googleusercontent.com"
-  document.getElementById('idDoBotao').style.display = 'none';
+  document.getElementById('botaoAvancar').style.display = 'none';
 
   google.accounts.id.initialize({
     client_id: clientID,
