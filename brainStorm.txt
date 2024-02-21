@@ -1,6 +1,16 @@
 Orientador: Paranhos
 Tema: Software para controle de agendamento de publicações em redes sociais
 
+Resumo:
+	Este software tem por objetivo auxiliar empresas do ramo de marketing no controle de agendamento das publicações de seus associados nas redes sociais, tendo como principais recursos o cronograma da postagem das publicações, onde o associado terá a visualização prévia e data agendada da publicação podendo ou não autorizar a postagem. Em pesquisa de campo foram encontrados softwares de controle de publicação, mas não contendo todas as ferramentas em um único sistema, onde o usuário precisa de 2 softwares (Postgram, Broker) para poder controlar por completo toda a publicação e não tendo o recurso da disponibilização das imagens prévias para o associado.
+	
+GPT
+	Este software será desenvolvido com o propósito de fornecer suporte a empresas atuantes no setor de marketing, visando aprimorar o gerenciamento do agendamento de publicações de seus associados nas redes sociais. Entre seus principais recursos, destaca-se o cronograma de postagens, permitindo que os associados visualizem antecipadamente as publicações planejadas, juntamente com as datas agendadas. Além disso, os associados têm a opção de autorizar ou não a realização da postagem.
+
+	Ao realizar uma pesquisa de campo, identificou-se a existência de softwares de controle de publicação. No entanto, constatou-se que tais soluções não oferecem todas as ferramentas essenciais em um único sistema integrado. Atualmente, muitos usuários se veem obrigados a utilizar dois softwares distintos, como o Postgram e o Broker, a fim de obter um controle abrangente sobre todo o processo de publicação. Uma lacuna adicional identificada nesses sistemas concorrentes é a ausência do recurso que disponibiliza visualizações prévias das imagens aos associados.
+
+	Portanto, o software proposto busca preencher essa lacuna, proporcionando uma solução abrangente e eficiente para o gerenciamento completo do agendamento e controle de publicações nas redes sociais, reunindo todas as ferramentas necessárias em um único ambiente integrado.
+
 Solução provisória de caráter definitivo
 
 Anotações da conversa com paranhos:
@@ -11,3 +21,6 @@ Anotações da conversa com paranhos:
 	Viver dentro da empresa para sentir as dores
 	
 	Fazer um sistema do zero do nada para aprender as técnicas
+
+Pesquisar:
+	Api da META
