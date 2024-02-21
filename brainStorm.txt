@@ -1,0 +1,13 @@
+Orientador: Paranhos
+Tema: Software para controle de agendamento de publicações em redes sociais
+
+Solução provisória de caráter definitivo
+
+Anotações da conversa com paranhos:
+	Navbar
+	Visível
+	InFrame (Servinn)
+	
+	Viver dentro da empresa para sentir as dores
+	
+	Fazer um sistema do zero do nada para aprender as técnicas
