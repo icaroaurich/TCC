@@ -37,10 +37,10 @@ Ianca
 		data comemorativa específica
 		Agendamento de gravação
 		ano de empresa
-	02 - Aprovação de conteúdo
+	02 - Aprovação de conteúdo OBS: Cobrar aprovação/rejeição do cliente
 		Se aprovado, avançar para próxima etapa
 		Se não, volta com o motivo
-	03 - fazer a arte e aprovação do cliente 
+	03 - fazer a arte e aprovação do cliente OBS: Cobrar aprovação/rejeição do cliente
 		Se aprovado, perguntar uma data
 		Se não, volta com o motivo
 	04 - Publicar

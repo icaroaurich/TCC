@@ -1,0 +1,122 @@
+<html lang="pt-br">
+<head>
+    <!-- <meta charset="UTF-8"> -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- <link rel="stylesheet" href="style/style_01.css"> -->
+    <link rel="shortcut icon" href="images/icon_link.ico">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="https://unpkg.com/jwt-decode/build/jwt-decode.js"></script>
+    <script src="js/painel.js"></script>
+
+    <title>Painel</title>
+</head>
+<body>
+
+    <style>
+        .collapsible {
+            background-color: #6b81F0;
+            color: white;
+            cursor: pointer;
+            padding: 5px;
+            border: 1px solid;
+            text-align: left;
+            outline: none;
+        }
+
+        .active,
+        .collapsible:hover {
+            background-color: #4650f0;
+        }
+
+        .collapsible:after {
+            content: '\002B';
+            color: white;
+            font-weight: bold;
+            float: right;
+            margin-left: 5px;
+        }
+
+        .active:after {
+            content: "\2212";
+        }
+
+        .content {
+            padding: 0 18px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.2s ease-out;
+            background-color: #f1f1f1;
+        }
+		
+		.button {
+			background-color: #04AA6D; /* Green */
+			border: none;
+			color: white;
+			padding: 15px 32px;
+			text-align: center;
+			text-decoration: none;
+			display: inline-block;
+			font-size: 16px;
+			margin: 4px 2px;
+			cursor: pointer;
+		}
+
+		.button2 {background-color: #EAEAEA;} /* Blue */
+		.button3 {background-color: #f44336;} /* Red */ 
+		.button4 {background-color: #e7e7e7; color: black;} /* Gray */ 
+		.button5 {background-color: #555555;} /* Black */
+    </style>
+
+    <div class="p-1 mb-2 bg-primary text-white">
+        <a href="painel.html">
+        <img id="picture" class="rounded float-start"     src="images/Back.ico"   width="60" height="60"></a>
+        <img id="picture" class="rounded float-end"       src="images/noUser.png" width="60" height="60">
+        <img id="home"    class="rounded mx-auto d-block" src="images/suaLogo.png" width="60" height="60">
+    </div>
+
+    <dl style='font-family: verdana;font-size: 15px;font-weight: bold;'>
+        <dt id='modulo1' class='collapsible'>Etapa 1 - Alinhamento com o cliente</dt>
+        <div class="content">
+            <div class="box-frases">
+                <li>Passos da etapa 1</li>
+            </div>
+        </div>
+        <dt id='modulo2' class='collapsible'>Etapa 2 - Aprovação de conteúdo</dt>
+        <div class="content">
+            <div class="box-frases">
+                <li>Passos da etapa 2</li>
+            </div>
+        </div>
+        <dt id='modulo3' class='collapsible'>Etapa 3 - Construir arte e aprovação do cliente</dt>
+        <div class="content">
+            <div class="box-frases">
+                <li>Passos da etapa 3</li>
+            </div>
+        </div>
+        <dt id='modulo3' class='collapsible'>Etapa 4 - Publicar</dt>
+        <div class="content">
+            <div class="box-frases">
+                <li>Passos da etapa 4</li>
+            </div>
+        </div>
+    </dl>
+    <script>
+        var coll = document.getElementsByClassName("collapsible");
+        var i;
+        for (i = 0; i < coll.length; i++) {
+            coll[i].addEventListener("click", function () {
+                this.classList.toggle("active");
+                var content = this.nextElementSibling;
+                if (content.style.maxHeight) {
+                    content.style.maxHeight = null;
+                } else {
+                    content.style.maxHeight = content.scrollHeight + "px";
+                }
+            });
+        }
+    </script>
+</body>
+</html>
