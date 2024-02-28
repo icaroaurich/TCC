@@ -54,4 +54,4 @@ Ianca
 		Entrar e ter blocos com as empresas
 		Clicar na empresa > clicar na postagem
 		Poder aprovar ou rejeitar	
-	
+	Trocar Publicar para agendar
