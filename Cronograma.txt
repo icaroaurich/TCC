@@ -4,7 +4,9 @@
 	Desenvolvido o prototipo visual do projeto
 28/02/2024
 	Apresentado para o orientador e cliente
-29/02/2024
+12/03/2024
+	Estudar API Instagram
 	Testar API Meta para publicação
-30/02/2024
+xx/xx/xxxx
+	
 	

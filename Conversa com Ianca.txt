@@ -1,0 +1,31 @@
+Postgrain
+	Softwares que ela citou
+		Meta
+		gupy
+		clickup
+	Procedimento
+		01 - Alinhamento com o cliente (mensal)(flexível)
+			Conhecer o serviço/produto
+			Publico alvo
+			Cronograma de publicação
+			data comemorativa específica
+			Agendamento de gravação
+			ano de empresa
+		02 - Aprovação de conteúdo OBS: Cobrar aprovação/rejeição do cliente
+			Se aprovado, avançar para próxima etapa
+			Se não, volta com o motivo
+		03 - fazer a arte e aprovação do cliente OBS: Cobrar aprovação/rejeição do cliente
+			Se aprovado, perguntar uma data
+			Se não, volta com o motivo
+		04 - Publicar
+		
+		Visual operador
+			Entrar e ter blocos com as empresas
+			Clicar na empresa > clicar na postagem
+			Seguir etapas de alinhamento, aprovação, construção da arte, aprovação, publicação
+			
+		Visual cliente final
+			Entrar e ter blocos com as empresas
+			Clicar na empresa > clicar na postagem
+			Poder aprovar ou rejeitar	
+	Trocar Publicar para agendar

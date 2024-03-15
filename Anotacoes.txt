@@ -1,0 +1,26 @@
+Solução provisória de caráter definitivo
+
+Anotações da conversa com paranhos:
+	Navbar
+	Visível
+	InFrame (Servinn)
+	
+	Viver dentro da empresa para sentir as dores
+	
+	Fazer um sistema do zero do nada para aprender as técnicas
+
+12/03/2024
+	https://developers.facebook.com/products/instagram/
+	https://developers.facebook.com/products/instagram/apis/
+	
+	https://developers.facebook.com/docs/instagram-api/
+	https://developers.facebook.com/docs/graph-api/
+	
+	dev, registrar
+	https://developers.facebook.com/async/registration/dialog/?src=default
+	https://developers.facebook.com/apps/
+	
+	Credênciais:
+		73.9.9811-6008
+		trainer@
+		atx
