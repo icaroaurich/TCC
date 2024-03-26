@@ -1,13 +1,14 @@
 document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("meuBotao").addEventListener("click", function () {
         // loginFacebook();
-        teste();
+        // teste();
         // checarLogin();
-        
+        // alert("O botão foi clicado!");
+         loginStatus();
     });
 });
+
 function loginFacebook() {
-    // alert("O botão foi clicado!");
     FB.login(function (response) {
         if (response.authResponse) {
             console.log('Welcome!  Fetching your information.... ');
@@ -30,12 +31,17 @@ function checarLogin(){
         statusChangeCallback(response);
     });
 }
-
+function loginStatus(){
+    FB.getLoginStatus(function(response) {
+        if (response.status === 'connected') {
+          var accessToken = response.authResponse.accessToken;
+        } 
+      } );
+}
 window.fbAsyncInit = function () {
     FB.init({
         appId: '1552182828658355',
         xfbml: true,
         version: 'v19.0'
     });
-    
 };
