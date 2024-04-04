@@ -1,10 +1,21 @@
 document.addEventListener("DOMContentLoaded", function () {
-    document.getElementById("meuBotao").addEventListener("click", function () {
-        // loginFacebook();
-        // teste();
-        // checarLogin();
-        // alert("O botão foi clicado!");
-         loginStatus();
+    document.getElementById("meuBotao1").addEventListener("click", function () {
+        loginFacebook();
+    });
+});
+document.addEventListener("DOMContentLoaded", function () {
+    document.getElementById("meuBotao2").addEventListener("click", function () {
+        teste();
+    });
+});
+document.addEventListener("DOMContentLoaded", function () {
+    document.getElementById("meuBotao3").addEventListener("click", function () {
+        checarLogin();
+    });
+});
+document.addEventListener("DOMContentLoaded", function () {
+    document.getElementById("meuBotao4").addEventListener("click", function () {
+        loginStatus();
     });
 });
 
