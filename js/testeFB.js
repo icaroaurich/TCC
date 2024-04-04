@@ -8,16 +8,6 @@ document.addEventListener("DOMContentLoaded", function () {
         teste();
     });
 });
-document.addEventListener("DOMContentLoaded", function () {
-    document.getElementById("meuBotao3").addEventListener("click", function () {
-        checarLogin();
-    });
-});
-document.addEventListener("DOMContentLoaded", function () {
-    document.getElementById("meuBotao4").addEventListener("click", function () {
-        loginStatus();
-    });
-});
 
 function loginFacebook() {
     FB.login(function (response) {

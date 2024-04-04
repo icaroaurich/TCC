@@ -9,7 +9,8 @@
 
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script src="https://unpkg.com/jwt-decode/build/jwt-decode.js"></script>
-    <script src="js/painel.js"></script>
+    <!-- <script src="js/painel.js"></script> -->
+    <script src="js/testeFB.js"></script>
 
     <title>Painel</title>
 </head>
@@ -103,6 +104,8 @@
             </div>
         </div>
     </dl>
+    <button id="meuBotao2">Postar no Facebook</button>
+    <script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js"></script>
     <script>
         var coll = document.getElementsByClassName("collapsible");
         var i;
