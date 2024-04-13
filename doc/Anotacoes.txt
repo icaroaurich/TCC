@@ -1,0 +1,38 @@
+05/04/2024
+Este software será desenvolvido com o propósito de fornecer suporte a empresas atuantes no setor de marketing, visando aprimorar o gerenciamento do agendamento de publicações de seus associados nas redes sociais. Entre seus principais recursos, destaca-se o cronograma de postagens, permitindo que os associados visualizem antecipadamente as publicações planejadas, juntamente com as datas agendadas. Além disso, os associados têm a opção de autorizar ou não a realização da postagem.
+Ao realizar uma pesquisa de campo, identificou-se a existência de softwares de controle de publicação. No entanto, constatou-se que tais soluções não oferecem todas as ferramentas essenciais em um único sistema integrado. Atualmente, muitos usuários se veem obrigados a utilizar dois softwares distintos, como o Postgram e o Broker, a fim de obter um controle abrangente sobre todo o processo de publicação. Uma lacuna adicional identificada nesses sistemas concorrentes é a ausência do recurso que disponibiliza visualizações prévias das imagens aos associados.
+Portanto, o software proposto busca preencher essa lacuna, proporcionando uma solução abrangente e eficiente para o gerenciamento completo do agendamento e controle de publicações nas redes sociais, reunindo todas as ferramentas necessárias em um único ambiente integrado.
+
+Entregar para semana que vem o problema de pesquisa (problemática) pergunta norteadora
+01 -> partir do problema
+	Existia um problema para fazer o sistema
+	ex: Como uma soluçõa de software a partir dos conceitos de gameficação podem contribuir para o aprendizado de intrgrais para alunos de ensino médio de uma instituiçao publica ou privada no brasil
+	meu: Como uma solução de software integrada com a GraphAPI pode facilitar na melhoria da imagem publica de ume empresa facilitando na publicação de imagens
+	Como uma solução de software integrada com a GraphAPI pode facilitar a melhoria da imagem pública de uma empresa, facilitando na publicação de imagens?
+02 -> 
+
+. Alguém tem que constatar que o problema existe
+. ex: Universidade x tem baixa de aprendizado
+. 
+01 - Introdução
+02 - Revisão de literatura
+03 - Metodologia
+04 - Desenvolvimento do projeto
+05 - Resultados e discussões
+06 - Conclusão
+	ref
+	
+Introdução
+  citação indiretas (parafraseada)
+  sempre fonte
+  Ter dados é foda, não ter dados é uma merda - Nepomuceno Vinícius
+  et al = eticétera e tal = o autor e o resto
+  As vezes você quer falar algo, mas alguém precisa ter dito pra você citar
+objetivo
+  pergunta sem interrogação
+objetivo específico
+  Como você vai fazer isso
+Justificativa
+  O "meu" problema
+Organização do texto
+  Como foi organizado o texto 
