@@ -14,7 +14,7 @@ Entregar para semana que vem o problema de pesquisa (problemática) pergunta nor
 . Alguém tem que constatar que o problema existe
 . ex: Universidade x tem baixa de aprendizado
 . 
-01 - Introdução
+01 - Introdução (contextualiza, problematiza, apresenta solução)
 02 - Revisão de literatura
 03 - Metodologia
 04 - Desenvolvimento do projeto
@@ -36,3 +36,8 @@ Justificativa
   O "meu" problema
 Organização do texto
   Como foi organizado o texto 
+09/08/2024
+Use citação direta e indireta, use, dê sem dó
+
+apresentação do TCC é oq tá no TCC
+não se usa atual, use o ano
