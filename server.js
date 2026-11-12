@@ -92,6 +92,11 @@ app.delete('/api/contas/:id', (req, res) => {
 });
 
 // ---------- Posts ----------
+// Cada post tem um tipo: "feed" (1 imagem = post comum; 2 a 10 = carrossel) ou "story" (1 imagem, sem legenda).
+// A conversão de PNG para JPEG e os avisos de proporção são feitos no navegador (public/js/empresa.js).
+
+const MAX_CARROSSEL = 10;
+const imagensDoPost = (p) => p.imagens || [p.imagem]; // posts antigos tinham uma imagem só, em "imagem"
 
 const upload = multer({
   storage: multer.diskStorage({
@@ -106,22 +111,27 @@ const upload = multer({
 });
 
 app.post('/api/posts', (req, res) => {
-  upload.single('imagem')(req, res, (err) => {
+  upload.array('imagens', MAX_CARROSSEL)(req, res, (err) => {
+    if (err && err.code === 'LIMIT_UNEXPECTED_FILE') err.message = `Escolha no máximo ${MAX_CARROSSEL} imagens.`;
     if (err) return res.status(400).json({ erro: err.message });
-    const apagarImagem = () => req.file && fs.unlink(req.file.path, () => {});
+    const arquivos = req.files || [];
+    const apagarImagens = () => arquivos.forEach((a) => fs.unlink(a.path, () => {}));
 
-    const { igUserId, legenda, publicarEm } = req.body;
+    const { igUserId, publicarEm } = req.body;
+    const tipo = req.body.tipo === 'story' ? 'story' : 'feed';
+    const legenda = tipo === 'story' ? '' : req.body.legenda || '';
     const conta = arm.ler('contas').find((c) => c.igUserId === igUserId);
     const quando = new Date(publicarEm);
 
     let erro = null;
-    if (!req.file) erro = 'Escolha uma imagem.';
+    if (!arquivos.length) erro = 'Escolha uma imagem.';
+    else if (tipo === 'story' && arquivos.length > 1) erro = 'O Story aceita uma imagem só. Para várias imagens, use o Feed (carrossel).';
     else if (!conta) erro = 'Conta do Instagram inválida.';
     else if (isNaN(quando)) erro = 'Data/hora inválida.';
     else if (quando.getTime() < Date.now() - 60000) erro = 'A data/hora precisa ser no futuro.';
-    else if ((legenda || '').length > 2200) erro = 'A legenda passa de 2200 caracteres (limite do Instagram).';
+    else if (legenda.length > 2200) erro = 'A legenda passa de 2200 caracteres (limite do Instagram).';
     if (erro) {
-      apagarImagem();
+      apagarImagens();
       return res.status(400).json({ erro });
     }
 
@@ -129,9 +139,10 @@ app.post('/api/posts', (req, res) => {
       id: crypto.randomUUID(),
       igUserId,
       igUsername: conta.username,
-      legenda: legenda || '',
-      imagem: req.file.filename,
-      nomeOriginal: req.file.originalname,
+      tipo,
+      legenda,
+      imagens: arquivos.map((a) => a.filename),
+      nomesOriginais: arquivos.map((a) => a.originalname),
       publicarEm: quando.toISOString(),
       status: 'agendado',
       criadoEm: new Date().toISOString(),
@@ -158,7 +169,7 @@ app.delete('/api/posts/:id', (req, res) => {
     if (i < 0) return 404;
     if (!['agendado', 'erro'].includes(posts[i].status)) return 409;
     const [removido] = posts.splice(i, 1);
-    fs.unlink(path.join(UPLOADS, removido.imagem), () => {});
+    for (const nome of imagensDoPost(removido)) fs.unlink(path.join(UPLOADS, nome), () => {});
     return 200;
   });
   if (resultado === 404) return res.status(404).json({ erro: 'Post não encontrado' });

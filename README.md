@@ -55,7 +55,9 @@ Com o domínio fixo do Railway, não precisa mais do `cloudflared`.
 ## Como funciona
 
 - **Login:** `/auth/instagram` leva para a tela de login da Meta (Instagram ou Facebook). Na volta (`/auth/instagram/callback`), o servidor troca o código pelo token da integração, busca as contas do Instagram liberadas (`/me/assigned_instagram_accounts`) e guarda em `data/contas.json`.
-- **Disparo:** a cada minuto, `src/agendador.js` publica os posts cujo horário chegou. São duas chamadas: `/{ig-user}/media` registra a imagem e `/{ig-user}/media_publish` publica. Se o PC estava desligado no horário, o post sai assim que o servidor subir.
+- **Tipos de publicação:** **Feed** com 1 imagem (post) ou de 2 a 10 (carrossel), e **Story** com 1 imagem (sem legenda, porque a API não aceita legenda em Stories).
+- **Imagens:** o Instagram só aceita JPEG. Uma imagem PNG é convertida para JPG no navegador, e a tela avisa. A tela também avisa quando a proporção foge do ideal: **4:5 (1080×1350) no Feed**, que corta imagens mais altas, e **9:16 (1080×1920) no Story**. No carrossel, todas as imagens seguem a proporção da primeira.
+- **Disparo:** a cada minuto, `src/agendador.js` publica os posts cujo horário chegou. São duas chamadas: `/{ig-user}/media` registra a imagem e `/{ig-user}/media_publish` publica. No carrossel, cada imagem vira um container (`is_carousel_item`), e um container `CAROUSEL` junta todos antes de publicar. No Story, o container usa `media_type=STORIES`. Se o PC estava desligado no horário, o post sai assim que o servidor subir.
 - **Token:** a validade é a escolhida na configuração do Unified login. Com "nunca expira", não precisa renovar. Se tiver vencimento, o log avisa 7 dias antes e é só entrar de novo com a conta.
 - **Erros** (túnel desligado, imagem recusada etc.): o status vira **Erro**, com a mensagem na tela e o botão **Tentar de novo**.
 

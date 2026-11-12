@@ -47,7 +47,9 @@ async function publicar(post) {
     const mediaId = await meta.publicarInstagram({
       igUserId: post.igUserId,
       token: conta.token,
-      imageUrl: `${base}/uploads/${encodeURIComponent(post.imagem)}`,
+      tipo: post.tipo || 'feed',
+      // Posts antigos guardavam uma imagem só, em "imagem".
+      imageUrls: (post.imagens || [post.imagem]).map((nome) => `${base}/uploads/${encodeURIComponent(nome)}`),
       legenda: post.legenda,
     });
     alterarPost(post.id, { status: 'publicado', publicadoEm: new Date().toISOString(), mediaId, erro: null });

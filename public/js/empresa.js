@@ -3,7 +3,6 @@ const igUserId = new URLSearchParams(location.search).get('ig');
 const form = document.getElementById('formPost');
 const inputImagem = document.getElementById('imagem');
 const area = document.getElementById('imagemArea');
-const previa = document.getElementById('previa');
 const legenda = document.getElementById('legenda');
 const mensagem = document.getElementById('mensagem');
 const lista = document.getElementById('lista');
@@ -58,23 +57,170 @@ function sugerirHorario() {
   campo.min = paraInput(new Date());
 }
 
-function mostrarPrevia(arquivo) {
-  if (!arquivo) {
-    previa.hidden = true;
-    return;
-  }
-  if (arquivo.type !== 'image/jpeg') {
-    inputImagem.value = '';
-    previa.hidden = true;
-    mostrarMensagem('O Instagram só aceita imagem JPEG (.jpg).', 'erro');
-    return;
-  }
-  previa.src = URL.createObjectURL(arquivo);
-  previa.hidden = false;
-  mostrarMensagem('');
+// ---------- Imagens: conversão PNG → JPG e avisos de proporção ----------
+// O Instagram só aceita JPEG. PNG é convertido aqui no navegador (fundo branco no lugar da transparência).
+const MAX_IMAGENS = 10;
+const MAX_BYTES = 8 * 1024 * 1024; // mesmo limite do servidor
+const IDEAL = {
+  feed: { razao: 4 / 5, tamanho: '1080×1350' },
+  story: { razao: 9 / 16, tamanho: '1080×1920' },
+};
+const TOLERANCIA = 0.01; // diferença de proporção que ainda conta como "igual"
+
+let selecionadas = []; // { blob, nome, url, largura, altura, convertida }
+
+const tipoAtual = () => form.querySelector('input[name="tipo"]:checked').value;
+
+function carregarImagem(url) {
+  return new Promise((ok, falha) => {
+    const img = new Image();
+    img.onload = () => ok(img);
+    img.onerror = () => falha(new Error('não foi possível abrir a imagem'));
+    img.src = url;
+  });
 }
 
-inputImagem.addEventListener('change', () => mostrarPrevia(inputImagem.files[0]));
+async function prepararArquivo(arquivo) {
+  const url = URL.createObjectURL(arquivo);
+  const img = await carregarImagem(url);
+  const item = { blob: arquivo, nome: arquivo.name, url, largura: img.naturalWidth, altura: img.naturalHeight, convertida: false };
+  if (arquivo.type === 'image/png') {
+    const canvas = document.createElement('canvas');
+    canvas.width = item.largura;
+    canvas.height = item.altura;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(img, 0, 0);
+    item.blob = await new Promise((ok) => canvas.toBlob(ok, 'image/jpeg', 0.92));
+    item.nome = arquivo.name.replace(/\.png$/i, '') + '.jpg';
+    item.convertida = true;
+    URL.revokeObjectURL(url);
+    item.url = URL.createObjectURL(item.blob);
+  }
+  return item;
+}
+
+async function adicionarArquivos(arquivos) {
+  mostrarMensagem('');
+  const recusadas = [];
+  for (const arquivo of arquivos) {
+    if (selecionadas.length >= MAX_IMAGENS) {
+      recusadas.push(`limite de ${MAX_IMAGENS} imagens atingido`);
+      break;
+    }
+    if (!['image/jpeg', 'image/png'].includes(arquivo.type)) {
+      recusadas.push(`${arquivo.name}: use JPG ou PNG`);
+      continue;
+    }
+    try {
+      const item = await prepararArquivo(arquivo);
+      if (item.blob.size > MAX_BYTES) {
+        URL.revokeObjectURL(item.url);
+        recusadas.push(`${arquivo.name}: passa de 8 MB`);
+        continue;
+      }
+      selecionadas.push(item);
+    } catch (e) {
+      recusadas.push(`${arquivo.name}: ${e.message}`);
+    }
+  }
+  if (recusadas.length) mostrarMensagem('Imagens não adicionadas: ' + recusadas.join('; ') + '.', 'erro');
+  atualizarImagens();
+}
+
+function removerImagem(i) {
+  URL.revokeObjectURL(selecionadas[i].url);
+  selecionadas.splice(i, 1);
+  atualizarImagens();
+}
+
+function limparImagens() {
+  selecionadas.forEach((s) => URL.revokeObjectURL(s.url));
+  selecionadas = [];
+  atualizarImagens();
+}
+
+// Avisos: conversões, proporção fora do ideal e regras do tipo escolhido.
+function calcularAlertas() {
+  const tipo = tipoAtual();
+  const ideal = IDEAL[tipo];
+  const alertas = [];
+  const varias = selecionadas.length > 1;
+
+  if (tipo === 'story' && varias) {
+    alertas.push({
+      nivel: 'erro',
+      texto: `O Story aceita uma imagem só. Remova ${selecionadas.length - 1} imagem(ns) ou escolha Feed para fazer um carrossel.`,
+    });
+  }
+
+  selecionadas.forEach((s, i) => {
+    const rotulo = varias ? `A imagem ${i + 1}` : 'A imagem';
+    if (s.convertida) alertas.push({ nivel: 'info', texto: `${rotulo} (${s.nome}) foi convertida de PNG para JPG.` });
+
+    const razao = s.largura / s.altura;
+    if (Math.abs(razao - ideal.razao) <= TOLERANCIA) return;
+    const medida = `${s.largura}×${s.altura}`;
+    let texto;
+    if (tipo === 'story') {
+      texto = `${rotulo} (${medida}) não está em 9:16 e não vai ficar enquadrada no Story: o Instagram corta ou preenche as bordas.`;
+    } else if (razao < ideal.razao) {
+      texto = `${rotulo} (${medida}) é mais alta que 4:5 e vai ficar cortada em cima e embaixo no feed.`;
+    } else if (razao > 1.91) {
+      texto = `${rotulo} (${medida}) é mais larga que 1.91:1 e vai ficar cortada nas laterais no feed.`;
+    } else {
+      texto = `${rotulo} (${medida}) não está em 4:5 e pode aparecer cortada no feed ou na grade do perfil.`;
+    }
+    alertas.push({ nivel: 'alerta', texto: `${texto} Ideal: ${ideal.tamanho}.` });
+  });
+
+  if (tipo === 'feed' && varias) {
+    const primeira = selecionadas[0].largura / selecionadas[0].altura;
+    if (selecionadas.some((s) => Math.abs(s.largura / s.altura - primeira) > TOLERANCIA)) {
+      alertas.push({
+        nivel: 'alerta',
+        texto: 'No carrossel, o Instagram usa a proporção da primeira imagem e corta as outras para ficarem iguais.',
+      });
+    }
+  }
+  return alertas;
+}
+
+function atualizarImagens() {
+  const tipo = tipoAtual();
+  document.getElementById('campoLegenda').hidden = tipo === 'story';
+  document.getElementById('dicaFormato').textContent =
+    tipo === 'story'
+      ? 'Clique ou arraste aqui · JPG ou PNG · 1 imagem'
+      : `Clique ou arraste aqui · JPG ou PNG · até ${MAX_IMAGENS} (carrossel)`;
+  area.classList.toggle('compacta', selecionadas.length > 0);
+
+  document.getElementById('miniaturas').innerHTML = selecionadas
+    .map(
+      (s, i) => `
+      <figure class="miniatura">
+        <img src="${s.url}" alt="">
+        ${selecionadas.length > 1 ? `<span class="ordem">${i + 1}</span>` : ''}
+        <button type="button" class="remover" data-remover="${i}" aria-label="Remover imagem ${i + 1}">×</button>
+      </figure>`
+    )
+    .join('');
+
+  document.getElementById('alertas').innerHTML = calcularAlertas()
+    .map((a) => `<li class="${a.nivel}">${escapar(a.texto)}</li>`)
+    .join('');
+}
+
+inputImagem.addEventListener('change', () => {
+  adicionarArquivos([...inputImagem.files]);
+  inputImagem.value = ''; // permite escolher o mesmo arquivo de novo
+});
+document.getElementById('miniaturas').addEventListener('click', (ev) => {
+  const botao = ev.target.closest('[data-remover]');
+  if (botao) removerImagem(Number(botao.dataset.remover));
+});
+document.getElementById('tipos').addEventListener('change', atualizarImagens);
 ['dragenter', 'dragover'].forEach((ev) => area.addEventListener(ev, () => area.classList.add('arrastando')));
 ['dragleave', 'drop'].forEach((ev) => area.addEventListener(ev, () => area.classList.remove('arrastando')));
 
@@ -84,12 +230,17 @@ legenda.addEventListener('input', () => {
 
 form.addEventListener('submit', async (ev) => {
   ev.preventDefault();
+  const tipo = tipoAtual();
+  if (!selecionadas.length) return mostrarMensagem('Escolha uma imagem.', 'erro');
+  if (tipo === 'story' && selecionadas.length > 1) return mostrarMensagem('O Story aceita uma imagem só.', 'erro');
   const quando = new Date(document.getElementById('publicarEm').value);
   if (quando < new Date()) return mostrarMensagem('Escolha um horário no futuro.', 'erro');
 
   const dados = new FormData(form);
   dados.set('igUserId', igUserId);
   dados.set('publicarEm', quando.toISOString()); // datetime-local vem sem fuso
+  if (tipo === 'story') dados.delete('legenda');
+  for (const s of selecionadas) dados.append('imagens', s.blob, s.nome);
 
   const botao = document.getElementById('botaoAgendar');
   botao.disabled = true;
@@ -99,9 +250,11 @@ form.addEventListener('submit', async (ev) => {
     const resp = await r.json();
     if (!r.ok) return mostrarMensagem(resp.erro, 'erro');
 
-    mostrarMensagem(`Agendado para ${formatarData(resp.publicarEm)}.`, 'ok');
+    const convertidas = selecionadas.filter((s) => s.convertida).length;
+    const extra = convertidas ? ` ${convertidas} imagem(ns) convertida(s) de PNG para JPG.` : '';
+    mostrarMensagem(`${rotuloTipo(resp)} agendado para ${formatarData(resp.publicarEm)}.${extra}`, 'ok');
     form.reset();
-    previa.hidden = true;
+    limparImagens();
     document.getElementById('contador').textContent = '0 / 2200';
     sugerirHorario();
     trocarFiltro('proximas');
@@ -113,6 +266,13 @@ form.addEventListener('submit', async (ev) => {
     botao.textContent = 'Agendar publicação';
   }
 });
+
+// "Story", "Carrossel (3)" ou "Post".
+function rotuloTipo(p) {
+  if (p.tipo === 'story') return 'Story';
+  const n = (p.imagens || [p.imagem]).length;
+  return n > 1 ? `Carrossel (${n})` : 'Post';
+}
 
 // ---------- Lista ----------
 document.getElementById('abas').addEventListener('click', (ev) => {
@@ -154,10 +314,11 @@ function desenhar() {
                  <button class="btn btn-texto perigo small" data-acao="cancelar" data-id="${p.id}">Excluir</button>`;
       return `
       <article class="cartao post">
-        <img src="/uploads/${encodeURIComponent(p.imagem)}" alt="" loading="lazy">
+        <img src="/uploads/${encodeURIComponent((p.imagens || [p.imagem])[0])}" alt="" loading="lazy">
         <div>
           <div class="quando">${formatarData(data)} <span class="muted small">· ${tempoRelativo(data)}</span></div>
-          <p class="legenda">${escapar(p.legenda) || '<em>Sem legenda</em>'}</p>
+          ${p.tipo === 'story' ? '' : `<p class="legenda">${escapar(p.legenda) || '<em>Sem legenda</em>'}</p>`}
+          <span class="selo tipo">${rotuloTipo(p)}</span>
           <span class="selo ${p.status}">${STATUS[p.status] || escapar(p.status)}</span>
           ${p.erro ? `<p class="erro">${escapar(p.erro)}</p>` : ''}
         </div>
