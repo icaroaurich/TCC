@@ -11,7 +11,9 @@ const agendador = require('./src/agendador');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const UPLOADS = path.join(__dirname, 'uploads');
+// Mesma lógica de src/armazenamento.js: UPLOADS_DIR, ou <volume do Railway>/uploads, ou ./uploads.
+const VOLUME = process.env.RAILWAY_VOLUME_MOUNT_PATH;
+const UPLOADS = process.env.UPLOADS_DIR || (VOLUME ? path.join(VOLUME, 'uploads') : path.join(__dirname, 'uploads'));
 fs.mkdirSync(UPLOADS, { recursive: true });
 
 app.use(express.json());
@@ -181,6 +183,7 @@ app.post('/api/posts/:id/tentar-novamente', (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`Servidor em http://localhost:${PORT}`);
+  console.log(`Dados em ${arm.PASTA} | imagens em ${UPLOADS}`);
   if (!process.env.PUBLIC_URL) console.warn('Aviso: PUBLIC_URL vazia. Sem ela o login e a publicação no Instagram não funcionam.');
   else console.log(`Endereço público: ${process.env.PUBLIC_URL}`);
   console.log(`URL de retorno do login (cadastre no painel da Meta): ${meta.urlRetorno()}`);

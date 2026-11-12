@@ -5,7 +5,9 @@ const path = require('path');
 const crypto = require('crypto');
 
 // DATA_DIR permite usar outra pasta (ex.: nos testes, para não mexer nos dados reais).
-const PASTA = process.env.DATA_DIR || path.join(__dirname, '..', 'data');
+// No Railway, com um volume ligado ao serviço, os dados vão para <volume>/data e não se perdem a cada deploy.
+const VOLUME = process.env.RAILWAY_VOLUME_MOUNT_PATH;
+const PASTA = process.env.DATA_DIR || (VOLUME ? path.join(VOLUME, 'data') : path.join(__dirname, '..', 'data'));
 
 function caminho(nome) {
   return path.join(PASTA, nome + '.json');
@@ -38,4 +40,4 @@ function atualizar(nome, alterar, padrao = []) {
   return resultado;
 }
 
-module.exports = { ler, gravar, atualizar };
+module.exports = { ler, gravar, atualizar, PASTA };
