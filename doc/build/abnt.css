@@ -1,0 +1,49 @@
+/* Estilo aproximado ABNT (NBR 14724) para gerar o PDF do TCC */
+@page {
+  size: A4;
+  margin: 3cm 2cm 2cm 3cm; /* sup dir inf esq */
+  @top-right { content: counter(page); font-size: 10pt; }
+}
+
+html { font-family: "Times New Roman", Times, serif; font-size: 12pt; }
+body { line-height: 1.5; text-align: justify; color: #000; margin: 0; }
+
+p { text-indent: 1.25cm; margin: 0 0 0.5em 0; }
+
+h1, h2, h3, h4 { text-align: left; line-height: 1.3; page-break-after: avoid; }
+h1 { font-size: 12pt; text-transform: uppercase; font-weight: bold; break-before: page; margin: 0 0 1.5em 0; }
+h2 { font-size: 12pt; text-transform: uppercase; font-weight: normal; margin: 1.5em 0 1em 0; }
+h3 { font-size: 12pt; font-weight: bold; margin: 1.5em 0 1em 0; }
+h4 { font-size: 12pt; font-weight: normal; font-style: italic; margin: 1.5em 0 1em 0; }
+
+ul, ol { margin: 0 0 0.5em 1.25cm; padding-left: 1em; }
+li p { text-indent: 0; }
+
+table { border-collapse: collapse; margin: 1em auto; font-size: 10pt; }
+th, td { padding: 2px 8px; }
+
+.cite { white-space: nowrap; }
+
+/* Capa / folha de rosto */
+.capa { text-align: center; text-transform: uppercase; font-weight: bold;
+        height: 24.6cm; display: flex; flex-direction: column; justify-content: space-between; break-after: page; }
+.capa p { text-indent: 0; }
+.capa .titulo { font-size: 14pt; }
+
+/* Elementos pré-textuais vindos do abntex2 */
+.folhadeaprovacao, .dedicatoria, .agradecimentos, .resumo { break-before: page; }
+.folhadeaprovacao p, .resumo p, .center p { text-indent: 0; }
+.dedicatoria { padding-top: 16cm; padding-left: 8cm; font-style: italic; }
+.dedicatoria p { text-indent: 0; }
+.center { text-align: center; }
+.center:empty { display: none; }
+.resumo-titulo { text-align: center; font-weight: bold; text-transform: uppercase; margin-bottom: 1.5em; }
+
+/* Sumário */
+nav#TOC { break-before: page; break-after: page; }
+nav#TOC > ul { margin-left: 0; padding-left: 0; }
+nav#TOC ul { list-style: none; }
+nav#TOC ul ul { padding-left: 1.5em; margin-left: 0; }
+nav#TOC a { color: #000; text-decoration: none; }
+nav#TOC > ul > li > a { font-weight: bold; text-transform: uppercase; }
+.toc-titulo { text-align: center; font-weight: bold; text-transform: uppercase; margin-bottom: 1.5em; }
