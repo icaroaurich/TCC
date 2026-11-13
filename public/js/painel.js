@@ -46,7 +46,8 @@ document.getElementById('contas').addEventListener('click', async (ev) => {
     if (cartao) location.href = cartao.dataset.href;
     return;
   }
-  if (!confirm(`Desconectar @${botao.dataset.nome}? Os posts agendados dela não serão publicados.`)) return;
+  if (!confirm(`Remover @${botao.dataset.nome} deste navegador?
+Se ninguém mais administrar esta conta aqui, os posts agendados dela não serão publicados.`)) return;
   await fetch('/api/contas/' + encodeURIComponent(botao.dataset.desconectar), { method: 'DELETE' });
   montar();
 });

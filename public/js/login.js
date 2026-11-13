@@ -3,9 +3,9 @@ const erro = new URLSearchParams(location.search).get('erro');
 if (erro) {
   document.getElementById('mensagem').textContent = erro;
 } else {
-  // Se já existe conta conectada, vai direto para o painel.
+  // Se este navegador já tem conta conectada, vai direto para o painel.
   fetch('/api/contas')
-    .then((r) => r.json())
+    .then((r) => (r.ok ? r.json() : [])) // 401: nenhuma conta neste navegador
     .then((contas) => {
       if (contas.length) location.href = 'painel.html';
     })

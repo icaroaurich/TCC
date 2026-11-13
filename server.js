@@ -8,6 +8,7 @@ const multer = require('multer');
 const arm = require('./src/armazenamento');
 const meta = require('./src/meta');
 const agendador = require('./src/agendador');
+const sessoes = require('./src/sessao');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -16,23 +17,26 @@ const VOLUME = process.env.RAILWAY_VOLUME_MOUNT_PATH;
 const UPLOADS = process.env.UPLOADS_DIR || (VOLUME ? path.join(VOLUME, 'uploads') : path.join(__dirname, 'uploads'));
 fs.mkdirSync(UPLOADS, { recursive: true });
 
+app.set('trust proxy', 1); // o Railway fica atrás de um proxy; sem isso req.secure sai falso e o cookie perde o "Secure"
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
-app.use('/uploads', express.static(UPLOADS));
+app.use('/uploads', express.static(UPLOADS)); // público: o Instagram baixa as imagens por aqui
 
 // ---------- Login com o Instagram ----------
-// data/contas.json guarda uma lista de contas do Instagram conectadas (uma por empresa).
+// data/contas.json guarda as contas do Instagram conectadas. Cada conta tem "sessoes": os navegadores
+// (hash do cookie, veja src/sessao.js) que podem vê-la. Quem abre o site só vê as contas do próprio navegador.
 
-const statesPendentes = new Map(); // state -> criado em (proteção contra CSRF no retorno do login)
+const statesPendentes = new Map(); // state -> { sessao, criadoEm } (proteção contra CSRF no retorno do login)
 
 // Leva o usuário para a tela de login do Instagram.
 app.get('/auth/instagram', (req, res) => {
   const falta = ['META_APP_ID', 'META_APP_SECRET', 'META_CONFIG_ID', 'PUBLIC_URL'].filter((v) => !process.env[v]);
   if (falta.length) return res.redirect('/index.html?erro=' + encodeURIComponent(`Configure no .env: ${falta.join(', ')}`));
 
+  const sessao = sessoes.garantirSessao(req, res);
   const state = crypto.randomBytes(16).toString('hex');
-  statesPendentes.set(state, Date.now());
-  for (const [s, t] of statesPendentes) if (Date.now() - t > 3600e3) statesPendentes.delete(s);
+  statesPendentes.set(state, { sessao, criadoEm: Date.now() });
+  for (const [s, v] of statesPendentes) if (Date.now() - v.criadoEm > 3600e3) statesPendentes.delete(s);
   res.redirect(meta.urlLogin(state));
 });
 
@@ -42,8 +46,12 @@ app.get('/auth/instagram/callback', async (req, res) => {
   const { code, state, error_description, error_message } = req.query;
 
   if (error_description || error_message) return voltar('Login cancelado: ' + (error_description || error_message));
-  if (!state || !statesPendentes.has(state)) return voltar('Login expirado. Tente de novo.');
+  const pendente = state && statesPendentes.get(state);
+  if (!pendente) return voltar('Login expirado. Tente de novo.');
   statesPendentes.delete(state);
+  // O login precisa terminar no mesmo navegador que começou.
+  const sessao = sessoes.lerSessao(req);
+  if (!sessao || sessao !== pendente.sessao) return voltar('Login iniciado em outro navegador. Tente de novo.');
   if (!code) return voltar('O Instagram não devolveu o código de login.');
 
   try {
@@ -55,17 +63,20 @@ app.get('/auth/instagram/callback', async (req, res) => {
 
     arm.atualizar('contas', (contas) => {
       for (const ig of igs) {
+        const igUserId = String(ig.id);
+        const anterior = contas.find((c) => c.igUserId === igUserId);
         const conta = {
-          igUserId: String(ig.id),
+          igUserId,
           username: ig.username,
           nome: ig.name || ig.username,
           foto: ig.profile_picture_url || null,
           token,
           tokenExpiraEm: expiraEm,
           conectadaEm: new Date().toISOString(),
+          // Mantém os outros navegadores que já administravam a conta e acrescenta este.
+          sessoes: [...new Set([...((anterior && anterior.sessoes) || []), sessao])],
         };
-        const i = contas.findIndex((c) => c.igUserId === conta.igUserId);
-        if (i >= 0) contas[i] = conta;
+        if (anterior) contas[contas.indexOf(anterior)] = conta;
         else contas.push(conta);
       }
     });
@@ -77,17 +88,35 @@ app.get('/auth/instagram/callback', async (req, res) => {
   }
 });
 
-// Contas conectadas, sem os tokens.
+// Daqui para baixo, toda rota /api só responde para quem tem conta conectada neste navegador.
+app.use('/api', sessoes.exigirConta);
+
+// Contas deste navegador, sem os tokens e sem as sessões.
 app.get('/api/contas', (req, res) => {
-  res.json(arm.ler('contas').map(({ token, ...c }) => c));
+  res.json(req.contas.map(({ token, sessoes: _, ...c }) => c));
 });
 
-// Desconecta uma conta (os posts dela continuam no arquivo, mas não serão publicados).
+// Tira a conta deste navegador. Se ninguém mais administrar a conta, ela é removida
+// (os posts continuam no arquivo, mas não serão publicados).
 app.delete('/api/contas/:id', (req, res) => {
+  if (!req.idsPermitidos.has(req.params.id)) return res.status(404).json({ erro: 'Conta não encontrada' });
   arm.atualizar('contas', (contas) => {
     const i = contas.findIndex((c) => c.igUserId === req.params.id);
-    if (i >= 0) contas.splice(i, 1);
+    if (i < 0) return;
+    contas[i].sessoes = (contas[i].sessoes || []).filter((s) => s !== req.sessao);
+    if (!contas[i].sessoes.length) contas.splice(i, 1);
   });
+  res.json({ ok: true });
+});
+
+// Sai: tira este navegador de todas as contas e apaga o cookie. As contas continuam no servidor
+// (mesmo sem nenhum navegador), então os posts agendados continuam sendo publicados.
+// Entrando de novo com o Instagram, a conta volta a aparecer com os posts.
+app.post('/api/sair', (req, res) => {
+  arm.atualizar('contas', (contas) => {
+    for (const c of contas) c.sessoes = (c.sessoes || []).filter((s) => s !== req.sessao);
+  });
+  sessoes.apagarSessao(req, res);
   res.json({ ok: true });
 });
 
@@ -120,7 +149,7 @@ app.post('/api/posts', (req, res) => {
     const { igUserId, publicarEm } = req.body;
     const tipo = req.body.tipo === 'story' ? 'story' : 'feed';
     const legenda = tipo === 'story' ? '' : req.body.legenda || '';
-    const conta = arm.ler('contas').find((c) => c.igUserId === igUserId);
+    const conta = req.contas.find((c) => c.igUserId === igUserId); // só contas deste navegador
     const quando = new Date(publicarEm);
 
     let erro = null;
@@ -157,7 +186,7 @@ app.post('/api/posts', (req, res) => {
 app.get('/api/posts', (req, res) => {
   const posts = arm
     .ler('posts')
-    .filter((p) => !req.query.ig || p.igUserId === req.query.ig)
+    .filter((p) => req.idsPermitidos.has(p.igUserId) && (!req.query.ig || p.igUserId === req.query.ig))
     .sort((a, b) => a.publicarEm.localeCompare(b.publicarEm));
   res.json(posts);
 });
@@ -165,7 +194,8 @@ app.get('/api/posts', (req, res) => {
 // Cancela um post que ainda não foi publicado.
 app.delete('/api/posts/:id', (req, res) => {
   const resultado = arm.atualizar('posts', (posts) => {
-    const i = posts.findIndex((p) => p.id === req.params.id);
+    // Post de conta de outro navegador responde 404, para não revelar que ele existe.
+    const i = posts.findIndex((p) => p.id === req.params.id && req.idsPermitidos.has(p.igUserId));
     if (i < 0) return 404;
     if (!['agendado', 'erro'].includes(posts[i].status)) return 409;
     const [removido] = posts.splice(i, 1);
@@ -180,7 +210,7 @@ app.delete('/api/posts/:id', (req, res) => {
 // Tenta de novo um post que deu erro (volta para "agendado" e publica em seguida se já venceu).
 app.post('/api/posts/:id/tentar-novamente', (req, res) => {
   const ok = arm.atualizar('posts', (posts) => {
-    const p = posts.find((x) => x.id === req.params.id && x.status === 'erro');
+    const p = posts.find((x) => x.id === req.params.id && x.status === 'erro' && req.idsPermitidos.has(x.igUserId));
     if (p) {
       p.status = 'agendado';
       p.erro = null;

@@ -52,6 +52,24 @@ O Railway mantém o servidor ligado o tempo todo, então o agendador funciona se
 
 Com o domínio fixo do Railway, não precisa mais do `cloudflared`.
 
+## Sessões e acesso de outras pessoas
+
+**Cada navegador vê só as próprias contas.** Ao clicar em **Entrar com Instagram**, o navegador ganha um cookie `sessao` (HttpOnly, válido por 1 ano). As contas conectadas ali ficam ligadas a esse cookie. No servidor, `data/contas.json` guarda só o hash dele, no campo `sessoes`. Não há cadastro nem senha. Em outro navegador ou celular, basta entrar com o Instagram de novo. Duas pessoas podem administrar a mesma conta, cada uma no próprio navegador.
+
+- **Sair** (no topo): tira o navegador das contas. As contas continuam no servidor, e os posts agendados continuam sendo publicados.
+- **Desconectar** (no cartão da conta): tira a conta deste navegador. Se nenhum outro navegador administrar a conta, ela é apagada e os posts dela não são mais publicados.
+- Toda rota `/api` responde 401 para quem não tem conta conectada no navegador, e 404 para posts de contas de outros navegadores. A pasta `/uploads` continua pública, porque o Instagram baixa as imagens por ela.
+
+**Liberar para outras pessoas.** Enquanto o app da Meta estiver em **modo desenvolvimento**, só quem tem função no app consegue entrar:
+
+- **Para testes e para a banca:** em developers.facebook.com > seu app > **Funções do app**, adicione a pessoa como **Testador do Instagram** (ou Desenvolvedor). Ela aceita o convite e passa a conseguir conectar a própria conta.
+- **Para qualquer pessoa (modo Live):**
+  - faça a **verificação da empresa** no portfólio empresarial;
+  - peça o **App Review** com **acesso avançado** às permissões `instagram_basic`, `instagram_content_publish` e `business_management`, enviando um vídeo do sistema em uso e instruções de teste;
+  - em **Configurações do app > Básico**, preencha a **URL da Política de Privacidade** com `<PUBLIC_URL>/privacidade.html` e as **Instruções de exclusão de dados** com `<PUBLIC_URL>/exclusao-de-dados.html`.
+
+  Antes de enviar, troque `[e-mail de contato]` nas duas páginas.
+
 ## Como funciona
 
 - **Login:** `/auth/instagram` leva para a tela de login da Meta (Instagram ou Facebook). Na volta (`/auth/instagram/callback`), o servidor troca o código pelo token da integração, busca as contas do Instagram liberadas (`/me/assigned_instagram_accounts`) e guarda em `data/contas.json`.

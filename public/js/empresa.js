@@ -287,7 +287,9 @@ function trocarFiltro(novo) {
 }
 
 async function carregarPosts() {
-  posts = await (await fetch('/api/posts?ig=' + encodeURIComponent(igUserId))).json();
+  const r = await fetch('/api/posts?ig=' + encodeURIComponent(igUserId));
+  if (r.status === 401) return (location.href = 'index.html'); // saiu em outra aba
+  posts = await r.json();
   desenhar();
 }
 
